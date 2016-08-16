@@ -1,0 +1,83 @@
+---
+title: "Brief investigation on sampling from exponential distribution "
+author: "Ilya Semenov"
+date: "March 29, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Overview
+
+This is a brief illustration of [Central Limit Theorem](https://en.wikipedia.org/wiki/Exponential_distribution) in action. Means and variances of 1000 simulated samples of length 40 exponential averages were compared with analytically obtained formulas for exponential mean and variance. Used exponential distribution with Lambda parameter 0.2.
+
+##Simulations
+
+According to theory mean of exponential distribution with LAMBDA == 0.2 equals
+```{r echo=TRUE}
+lambda <- 0.2
+1/lambda
+```
+
+So according to Central Limit Theorem (CLT) we can expect that mean of 1000 40-sized samples will approximately be equal to 5. Let check it.
+
+```{r echo=TRUE}
+mns <- NULL
+set.seed(1001)
+samplesize = 40
+for (i in 1:1000) {
+    mns <- c(mns, mean(rexp(samplesize, lambda)))
+}
+mean(mns)
+```
+
+It proves our theoretical estimate is correct.
+
+##Sample mean vs theoretical mean
+
+According to CLT sample means must be approximately normally distributed around theoretical mean of exponential distribution with lambda parameter 0.2, that equals 5.
+On a plot below blue vertical line represents theoretical mean.
+
+```{r echo=TRUE}
+hist(mns, main = 'Histogram of sample means frequencies', 
+     xlab = 'Sample means values', col = 'lightgreen')
+abline(v=5, lwd=5, col='blue')
+```
+
+##Sample variance vs theoretical variance
+
+Theoretical standard deviation for exponential distribution samples of size 40 equals approximately 0.79. 
+```{r}
+thsd <- 1/lambda/sqrt(samplesize)
+thsd
+```
+
+Theoretical variance equals approximately 0.625.
+```{r}
+thsd^2
+```
+
+Let check if simulated samples standard deviation and variance matche with those values.
+
+```{r}
+sd(mns)
+var(mns)
+```
+
+So expected and obtained standard deviation and variance match.
+
+##Is distribution close to normal?
+
+To answer this question we can graphically compare obtained samples mean distribution with normal distribution with parameters mean = 5, sd = 0.79
+
+```{r echo=TRUE}
+hist(mns, breaks = 20, probability = TRUE, ylim = c(0, .6), 
+     main = 'Histogram of sample means density', 
+     xlab = 'Sample means values', 
+     col = 'lightgreen')
+curve(dnorm(x, mean=5, sd = .79), lwd = 3, add = TRUE, col = 'blue')
+```
+
+So as seen from the figure sample means distribution fits with normal distribution perfectly.
